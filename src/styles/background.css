@@ -1,0 +1,23 @@
+:root {
+  --bg: #000;
+}
+
+/* Base page background */
+html,
+body {
+  height: 100%;
+  margin: 0;
+  background: var(--bg);
+  overflow-x: hidden;
+}
+
+/* Background canvas */
+#starfield {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100vh;
+  z-index: 0;
+  pointer-events: none;
+  display: block;
+}

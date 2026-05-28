@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Planets Demo</title>
+    <link rel="stylesheet" href="./planets.css" />
+    <style>
+      html, body { height: 100%; margin: 0; background: #000; overflow: hidden; }
+      body { display: grid; place-items: center; }
+      .planets-block { width: min(1100px, calc(100% - 48px)); height: 520px; }
+    </style>
+  </head>
+
+  <body>
+    <div class="planets-block">
+      <div id="planetsTip" class="planets-tip"></div>
+      <canvas id="planetsCanvas" class="planets-canvas"></canvas>
+    </div>
+
+    <script type="module">
+      import { initPlanets } from "./planets.js";
+      initPlanets({ canvasId: "planetsCanvas", tipId: "planetsTip" });
+    </script>
+  </body>
+</html>

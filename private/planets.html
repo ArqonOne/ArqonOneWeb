@@ -1,0 +1,592 @@
+<!-- sketch-planets-new-looks.html -->
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sketch Planets — New Looks</title>
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            background: #000;
+            overflow: hidden;
+        }
+
+        canvas {
+            position: fixed;
+            inset: 0;
+            width: 100vw;
+            height: 100vh;
+            display: block;
+        }
+
+        .tip {
+            position: fixed;
+            z-index: 3;
+            pointer-events: none;
+            padding: 8px 10px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.14);
+            background: rgba(0, 0, 0, 0.55);
+            backdrop-filter: blur(8px);
+            font:
+                12px system-ui,
+                -apple-system,
+                Segoe UI,
+                Roboto,
+                Arial;
+            color: rgba(255, 255, 255, 0.9);
+            transform: translate(12px, 12px);
+            opacity: 0;
+            transition: opacity 120ms ease;
+            white-space: nowrap;
+        }
+
+        .tip.show {
+            opacity: 1;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="tip" class="tip"></div>
+    <canvas id="c"></canvas>
+
+    <script>
+        (() => {
+            const canvas = document.getElementById("c");
+            const ctx = canvas.getContext("2d");
+            const tip = document.getElementById("tip");
+
+            let w = 0,
+                h = 0,
+                dpr = 1;
+            function resize() {
+                dpr = Math.max(1, Math.min(2, window.devicePixelRatio || 1));
+                w = window.innerWidth;
+                h = window.innerHeight;
+                canvas.width = Math.floor(w * dpr);
+                canvas.height = Math.floor(h * dpr);
+                canvas.style.width = w + "px";
+                canvas.style.height = h + "px";
+                ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+            }
+            window.addEventListener("resize", resize);
+            resize();
+
+            const rand = (min, max) => Math.random() * (max - min) + min;
+
+            // Mouse
+            const mouse = { x: 0, y: 0, active: false };
+            window.addEventListener("mousemove", (e) => {
+                mouse.active = true;
+                mouse.x = e.clientX;
+                mouse.y = e.clientY;
+            });
+            window.addEventListener("mouseleave", () => {
+                mouse.active = false;
+                tip.classList.remove("show");
+            });
+
+            // ===== Sketch helpers =====
+            function roughCircle(x, y, r, passes = 2, jitter = 1.2) {
+                for (let p = 0; p < passes; p++) {
+                    const steps = 64;
+                    ctx.beginPath();
+                    for (let i = 0; i <= steps; i++) {
+                        const a = (i / steps) * Math.PI * 2;
+                        const rr = r + rand(-jitter, jitter);
+                        const px = x + Math.cos(a) * rr + rand(-0.35, 0.35);
+                        const py = y + Math.sin(a) * rr + rand(-0.35, 0.35);
+                        if (i === 0) ctx.moveTo(px, py);
+                        else ctx.lineTo(px, py);
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            function roughEllipse(x, y, rx, ry, rot = 0, passes = 2, jitter = 1.1) {
+                for (let p = 0; p < passes; p++) {
+                    const steps = 80;
+                    ctx.beginPath();
+                    for (let i = 0; i <= steps; i++) {
+                        const a = (i / steps) * Math.PI * 2;
+                        const jx = rand(-jitter, jitter),
+                            jy = rand(-jitter, jitter);
+                        let px = Math.cos(a) * (rx + jx),
+                            py = Math.sin(a) * (ry + jy);
+                        const cr = Math.cos(rot),
+                            sr = Math.sin(rot);
+                        const rpx = px * cr - py * sr;
+                        const rpy = px * sr + py * cr;
+                        if (i === 0) ctx.moveTo(x + rpx, y + rpy);
+                        else ctx.lineTo(x + rpx, y + rpy);
+                    }
+                    ctx.stroke();
+                }
+            }
+
+            function hatchInCircle(
+                x,
+                y,
+                r,
+                angleRad,
+                spacing,
+                alpha,
+                wiggle = 0.9,
+            ) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(x, y, r - 0.5, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.globalAlpha = alpha;
+
+                ctx.translate(x, y);
+                ctx.rotate(angleRad);
+
+                const len = r * 2.9;
+                for (let i = -len; i <= len; i += spacing) {
+                    ctx.beginPath();
+                    const j = rand(-wiggle, wiggle);
+                    ctx.moveTo(-len, i + j);
+                    ctx.lineTo(len, i + j + rand(-0.6, 0.6));
+                    ctx.stroke();
+                }
+
+                ctx.restore();
+                ctx.globalAlpha = 1;
+            }
+
+            function stippleInCircle(x, y, r, density, alpha) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.globalAlpha = alpha;
+
+                const area = Math.PI * r * r;
+                const n = Math.floor(area * density);
+                for (let i = 0; i < n; i++) {
+                    const a = Math.random() * Math.PI * 2;
+                    const rr = Math.sqrt(Math.random()) * (r - 1);
+                    const px = x + Math.cos(a) * rr;
+                    const py = y + Math.sin(a) * rr;
+                    const pr = rand(0.35, 1.1);
+                    ctx.beginPath();
+                    ctx.arc(px, py, pr, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                ctx.restore();
+                ctx.globalAlpha = 1;
+            }
+
+            // NEW: crater arcs (small rough circles clipped inside)
+            function cratersInCircle(x, y, r, count, alpha) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+                ctx.clip();
+
+                ctx.strokeStyle = `rgba(255,255,255,${alpha})`;
+                ctx.lineWidth = 1;
+
+                for (let i = 0; i < count; i++) {
+                    const a = Math.random() * Math.PI * 2;
+                    const rr = Math.sqrt(Math.random()) * (r * 0.72);
+                    const cx = x + Math.cos(a) * rr;
+                    const cy = y + Math.sin(a) * rr;
+                    const cr = rand(r * 0.06, r * 0.14);
+
+                    // partial arc crater
+                    ctx.beginPath();
+                    ctx.arc(cx, cy, cr, rand(0, Math.PI), rand(Math.PI, Math.PI * 2));
+                    ctx.stroke();
+
+                    // second faint pass
+                    ctx.globalAlpha = 0.55;
+                    ctx.beginPath();
+                    ctx.arc(
+                        cx + rand(-0.6, 0.6),
+                        cy + rand(-0.6, 0.6),
+                        cr * rand(0.9, 1.15),
+                        rand(0, Math.PI),
+                        rand(Math.PI, Math.PI * 2),
+                    );
+                    ctx.stroke();
+                    ctx.globalAlpha = 1;
+                }
+
+                ctx.restore();
+            }
+
+            // NEW: half-shadow shading using hatch clipped to half-plane
+            function halfShadowHatch(
+                x,
+                y,
+                r,
+                side /* -1 left, +1 right */,
+                angle,
+                spacing,
+                alpha,
+            ) {
+                ctx.save();
+                // clip circle
+                ctx.beginPath();
+                ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+                ctx.clip();
+                // clip half
+                ctx.beginPath();
+                if (side < 0) {
+                    ctx.rect(-99999, -99999, x, 999999);
+                } else {
+                    ctx.rect(x, -99999, 999999, 999999);
+                }
+                ctx.clip();
+
+                ctx.strokeStyle = "rgba(255,255,255,1)";
+                hatchInCircle(x, y, r, angle, spacing, alpha, 0.8);
+
+                ctx.restore();
+            }
+
+            // NEW: chalk halo (soft outer glow ring)
+            function chalkHalo(x, y, r, strength) {
+                ctx.save();
+                ctx.globalAlpha = strength;
+                ctx.strokeStyle = "rgba(255,255,255,0.08)";
+                ctx.lineWidth = 10;
+                ctx.beginPath();
+                ctx.arc(x, y, r + 6, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.restore();
+                ctx.globalAlpha = 1;
+            }
+
+            // ===== Background dots =====
+            const bgDots = Array.from({ length: 900 }, () => ({
+                x: Math.random() * w,
+                y: Math.random() * h,
+                r: rand(0.3, 1.3),
+                a: rand(0.12, 0.85),
+                ph: Math.random() * Math.PI * 2,
+                sp: rand(0.2, 1.0),
+            }));
+
+            function drawBackground(t) {
+                ctx.fillStyle = "#000";
+                ctx.fillRect(0, 0, w, h);
+
+                ctx.fillStyle = "rgba(255,255,255,1)";
+                for (const s of bgDots) {
+                    const tw = 0.65 + 0.35 * Math.sin(t * s.sp + s.ph + s.x * 0.01);
+                    ctx.globalAlpha = Math.max(0.05, Math.min(1, s.a * tw));
+                    ctx.beginPath();
+                    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+                ctx.globalAlpha = 1;
+            }
+
+            // ===== New planet "looks" =====
+            // Look types: "marble", "crater", "split", "belt", "halo", "ringed"
+            const PLANETS_DEF = [
+                {
+                    name: "Marble",
+                    x: 0.16,
+                    y: 0.52,
+                    r: 26,
+                    ring: false,
+                    look: {
+                        type: "marble",
+                        outline: 2.4,
+                        jitter: 1.2,
+                        passes: 2,
+                        hatchAlpha: 0.55,
+                    },
+                },
+                {
+                    name: "Crater",
+                    x: 0.29,
+                    y: 0.52,
+                    r: 56,
+                    ring: false,
+                    look: {
+                        type: "crater",
+                        outline: 3.2,
+                        jitter: 1.4,
+                        passes: 2,
+                        craterCount: 4, // ↓ from 18
+                    },
+                },
+                {
+                    name: "Split",
+                    x: 0.42,
+                    y: 0.52,
+                    r: 34,
+                    ring: false,
+                    look: {
+                        type: "split",
+                        outline: 2.6,
+                        jitter: 1.2,
+                        passes: 2,
+                        shadowSide: +1,
+                    },
+                },
+                {
+                    name: "Belted",
+                    x: 0.54,
+                    y: 0.52,
+                    r: 40,
+                    ring: false,
+                    look: {
+                        type: "belt",
+                        outline: 2.8,
+                        jitter: 1.8,
+                        passes: 2,
+                        beltCount: 2, // ↓ fewer belts
+                    },
+                },
+
+                {
+                    name: "Halo",
+                    x: 0.67,
+                    y: 0.52,
+                    r: 84,
+                    ring: false,
+                    look: {
+                        type: "halo",
+                        outline: 3.6,
+                        jitter: 1.1,
+                        passes: 2,
+                        halo: 0.9,
+                    },
+                },
+                {
+                    name: "Ringed",
+                    x: 0.8,
+                    y: 0.52,
+                    r: 52,
+                    ring: true,
+                    look: {
+                        type: "ringed",
+                        outline: 2.8,
+                        jitter: 1.2,
+                        passes: 2,
+                        ringWidth: 2.8,
+                        ringDouble: true,
+                    },
+                },
+                {
+                    name: "Dotted",
+                    x: 0.92,
+                    y: 0.52,
+                    r: 46,
+                    ring: false,
+                    look: {
+                        type: "dots",
+                        outline: 2.2,
+                        jitter: 1.5,
+                        passes: 2,
+                        dotDensity: 0.016,
+                    },
+                },
+            ];
+
+            const planets = PLANETS_DEF.map((p, i) => ({
+                id: i + 1,
+                name: p.name,
+                nx: p.x,
+                ny: p.y,
+                r: p.r,
+                ring: p.ring,
+                look: p.look,
+                hover: 0,
+                pulse: 0,
+                phase: rand(0, Math.PI * 2),
+                bobSpeed: rand(0.6, 1.1),
+                bobAmp: rand(4, 10),
+                ringRot: rand(-0.25, 0.25),
+            }));
+
+            function planetPos(p, t) {
+                const baseX = p.nx * w;
+                const baseY = p.ny * h;
+                const bob = Math.sin(t * p.bobSpeed + p.phase) * p.bobAmp;
+                return { x: baseX, y: baseY + bob };
+            }
+
+            function pickPlanet(mx, my, t) {
+                for (let i = planets.length - 1; i >= 0; i--) {
+                    const p = planets[i];
+                    const pos = planetPos(p, t);
+                    const dx = mx - pos.x,
+                        dy = my - pos.y;
+                    if (dx * dx + dy * dy <= p.r * p.r) return p;
+                }
+                return null;
+            }
+
+            canvas.addEventListener("click", () => {
+                const t = performance.now() / 1000;
+                const p = pickPlanet(mouse.x, mouse.y, t);
+                if (p) p.pulse = 1;
+            });
+
+            // belt helper: draw a few rough arcs across planet (clipped)
+            function beltsInCircle(x, y, r, count) {
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(x, y, r - 1, 0, Math.PI * 2);
+                ctx.clip();
+                ctx.strokeStyle = "rgba(255,255,255,0.08)";
+                ctx.lineWidth = 1;
+                for (let i = 0; i < count; i++) {
+                    const yy = y + rand(-r * 0.35, r * 0.35);
+                    const tilt = rand(-0.18, 0.18);
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(tilt);
+                    ctx.beginPath();
+                    ctx.moveTo(-r * 1.4, yy - y);
+                    ctx.lineTo(r * 1.4, yy - y + rand(-1.2, 1.2));
+                    ctx.stroke();
+                    ctx.restore();
+                }
+                ctx.restore();
+            }
+
+            function drawPlanet(p, x, y, t) {
+                const lk = p.look;
+                const rr = p.r * (1 + p.hover * 0.06) * (1 + p.pulse * 0.12);
+
+                ctx.save();
+                ctx.lineCap = "round";
+                ctx.lineJoin = "round";
+
+                // optional chalk halo (unique look)
+                if (lk.type === "halo") chalkHalo(x, y, rr, lk.halo ?? 0.8);
+
+                // outline
+                ctx.strokeStyle = "rgba(255,255,255,0.82)";
+                ctx.lineWidth = lk.outline ?? 2.6;
+                roughCircle(x, y, rr, lk.passes ?? 2, lk.jitter ?? 1.2);
+
+                // inner outline
+                ctx.strokeStyle = "rgba(255,255,255,0.30)";
+                ctx.lineWidth = Math.max(1, (lk.outline ?? 2.6) * 0.45);
+                roughCircle(x, y, rr - 1.6, 1, (lk.jitter ?? 1.2) * 0.8);
+
+                // interior content by look
+                ctx.strokeStyle = "rgba(255,255,255,0.18)";
+                ctx.lineWidth = 1;
+
+                if (lk.type === "marble") {
+                    hatchInCircle(x, y, rr - 1, -0.95, 6.0, lk.hatchAlpha ?? 0.55, 1.0);
+                    hatchInCircle(x, y, rr - 1, -0.62, 10.5, 0.22, 0.8);
+                }
+
+                if (lk.type === "crater") {
+                    hatchInCircle(x, y, rr - 1, -0.9, 6.8, 0.4, 1.0);
+                    cratersInCircle(x, y, rr, lk.craterCount ?? 7, 0.12);
+                }
+
+                if (lk.type === "split") {
+                    // light full subtle hatch
+                    hatchInCircle(x, y, rr - 1, -0.92, 8.8, 0.18, 0.8);
+                    // darker half
+                    halfShadowHatch(x, y, rr, lk.shadowSide ?? +1, -0.95, 6.2, 0.62);
+                }
+
+                if (lk.type === "belt") {
+                    hatchInCircle(x, y, rr - 1, -0.92, 8.0, 0.22, 0.9);
+                    beltsInCircle(x, y, rr, lk.beltCount ?? 3);
+                }
+
+                if (lk.type === "halo") {
+                    hatchInCircle(x, y, rr - 1, -0.92, 5.0, 0.72, 1.0);
+                    // extra inner ring to add weight
+                    ctx.strokeStyle = "rgba(255,255,255,0.22)";
+                    ctx.lineWidth = 1.2;
+                    roughCircle(x, y, rr * 0.78, 1, 0.9);
+                }
+
+                if (lk.type === "dots") {
+                    ctx.fillStyle = "rgba(255,255,255,0.85)";
+                    stippleInCircle(x, y, rr - 1, lk.dotDensity ?? 0.016, 0.18);
+                    hatchInCircle(x, y, rr - 1, -0.7, 14.0, 0.1, 0.6);
+                }
+
+                // ringed look
+                if (p.ring) {
+                    const rot = p.ringRot + Math.sin(t * 0.2 + p.phase) * 0.06;
+                    const ringW = lk.ringWidth ?? 2.6;
+
+                    ctx.strokeStyle = "rgba(255,255,255,0.76)";
+                    ctx.lineWidth = ringW;
+                    roughEllipse(x, y, rr * 1.35, rr * 0.55, rot, 2, 1.1);
+
+                    if (lk.ringDouble) {
+                        ctx.strokeStyle = "rgba(255,255,255,0.26)";
+                        ctx.lineWidth = Math.max(1.1, ringW * 0.55);
+                        roughEllipse(x, y, rr * 1.1, rr * 0.44, rot, 1, 0.95);
+                    }
+                }
+
+                // hover label
+                if (p.hover > 0.08) {
+                    ctx.globalAlpha = Math.min(1, p.hover);
+                    ctx.fillStyle = "rgba(255,255,255,0.86)";
+                    ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
+                    ctx.textAlign = "center";
+                    ctx.fillText(p.name, x, y + rr + 22);
+                    ctx.globalAlpha = 1;
+                }
+
+                ctx.restore();
+            }
+
+            function updateTooltip(p) {
+                if (!p) {
+                    tip.classList.remove("show");
+                    return;
+                }
+                tip.textContent = `${p.name} • click`;
+                tip.style.left = mouse.x + "px";
+                tip.style.top = mouse.y + "px";
+                tip.classList.add("show");
+            }
+
+            let last = performance.now();
+            function frame(now) {
+                const dt = Math.min(0.033, (now - last) / 1000);
+                last = now;
+                const t = now / 1000;
+
+                drawBackground(t);
+
+                const hovered = mouse.active ? pickPlanet(mouse.x, mouse.y, t) : null;
+
+                for (const p of planets) {
+                    const isHover = hovered === p;
+                    p.hover += ((isHover ? 1 : 0) - p.hover) * 0.14;
+
+                    p.pulse *= Math.pow(0.001, dt);
+                    if (p.pulse < 0.001) p.pulse = 0;
+
+                    const pos = planetPos(p, t);
+                    drawPlanet(p, pos.x, pos.y, t);
+                }
+
+                updateTooltip(hovered);
+                requestAnimationFrame(frame);
+            }
+            requestAnimationFrame(frame);
+        })();
+    </script>
+</body>
+
+</html>

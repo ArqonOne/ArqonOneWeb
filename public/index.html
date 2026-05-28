@@ -1,0 +1,253 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Marek Kouba</title>
+  <link rel="stylesheet" href="../src/styles/background.css" />
+  <link rel="stylesheet" href="../src/styles/styles.css" />
+  <link rel="stylesheet" href="../src/styles/planets.css" />
+</head>
+
+<body>
+  <canvas id="starfield" aria-hidden="true"></canvas>
+
+  <header class="topbar">
+    <div class="container topbar__inner">
+      <a class="brand" href="#top">MK</a>
+      <nav class="nav">
+        <a href="#roles">Roles</a>
+        <a href="#projects">Projects</a>
+        <a href="#skills">Abilities</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <main id="top" class="container page">
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero__left">
+        <h1 class="hero__title">Marek Kouba</h1>
+        <p class="hero__subtitle">
+          Java & Android developer focused on building practical desktop and mobile applications.
+          I like clean UI, fast tools, and solving real workflow problems.
+        </p>
+
+        <div class="hero__cta">
+          <a class="btn btn--primary" href="#projects">View Projects</a>
+          <a class="btn btn--ghost" href="#contact">Contact Me</a>
+        </div>
+
+        <div class="hero__meta">
+          <div class="meta-item">
+            <span class="meta-label">Location</span>
+            <span class="meta-value">Czechia, Prague</span>
+          </div>
+          <div class="meta-item">
+            <span class="meta-label">Focus</span>
+            <span class="meta-value">Java • Android • Swing/JavaFX</span>
+          </div>
+        </div>
+      </div>
+
+      <aside class="hero__right">
+        <div class="avatar-card">
+          <img class="avatar" src="./assets/img/profile.png" alt="Profile photo of Marek Kouba" />
+          <div class="avatar-card__text">
+            <div class="avatar-card__name">Marek Kouba</div>
+            <div class="avatar-card__desc">Java & Android Developer</div>
+          </div>
+          <div class="avatar-card__links">
+            <a href="https://github.com/ArqonOne" target="blank" aria-label="GitHub">GitHub</a>
+            <a href="https://www.linkedin.com/in/marek-kouba-42253a305/" target="blank" aria-label="LinkedIn">LinkedIn</a>
+            <a href="#" aria-label="CV">CV</a>
+          </div>
+        </div>
+      </aside>
+    </section>
+
+    <!-- ROLES -->
+    <section id="roles" class="section">
+      <div class="section__head">
+        <h2>Previous roles</h2>
+        <p>Highlights of what I’ve worked on recently.</p>
+      </div>
+
+      <div class="grid grid--2">
+        <article class="card">
+          <div class="card__top">
+            <h3>Java Developer</h3>
+            <span class="chip">2024 — 2025</span>
+          </div>
+          <p class="muted">
+            Built internal desktop tooling (Swing), data import/export, and UI components focused on performance
+            and usability.
+          </p>
+          <ul class="list">
+            <li>Reusable table component with filtering</li>
+            <li>UI optimization for large datasets</li>
+            <li>Integration with SQL backends</li>
+          </ul>
+        </article>
+
+        <article class="card">
+          <div class="card__top">
+            <h3>Android Developer</h3>
+            <span class="chip">2023 — 2024</span>
+          </div>
+          <p class="muted">
+            Implemented screens with RecyclerView + fragments, custom UI components, and API-driven flows.
+          </p>
+          <ul class="list">
+            <li>Expandable containers & dynamic layouts</li>
+            <li>Networking + data parsing</li>
+            <li>Improved UX consistency</li>
+          </ul>
+        </article>
+      </div>
+    </section>
+
+    <!-- PROJECTS (Planets) -->
+    <section id="projects" class="section">
+      <div class="section__head">
+        <h2>Projects</h2>
+      </div>
+
+      <div class="planets-block" id="planetsBlock">
+        <div id="planetsTip" class="planets-tip" aria-hidden="true"></div>
+        <canvas id="planetsCanvas" class="planets-canvas" aria-hidden="true"></canvas>
+      </div>
+
+      <!-- Project modal -->
+      <div id="projectModal" class="pmodal" aria-hidden="true" role="dialog" aria-label="Project details">
+        <div class="pmodal__overlay" data-close></div>
+
+        <div class="pmodal__panel" role="document">
+          <button class="pmodal__close" type="button" aria-label="Close" data-close>×</button>
+
+          <div class="pmodal__head">
+            <h3 id="pTitle" class="pmodal__title"></h3>
+            <a id="pLink" class="pmodal__link" href="#" target="_blank" rel="noopener">More info →</a>
+          </div>
+
+          <div class="pmodal__body">
+            <p id="pDesc" class="pmodal__desc"></p>
+
+            <div class="pmodal__carousel" aria-label="Project images">
+            <button id="pPrev" class="pmodal__nav" type="button" aria-label="Previous image">‹</button>
+
+            <div class="pmodal__imgwrap">
+              <img id="pImg" class="pmodal__img" alt="" />
+              <div id="pImgEmpty" class="pmodal__empty muted">No images yet.</div>
+            </div>
+
+            <button id="pNext" class="pmodal__nav" type="button" aria-label="Next image">›</button>
+          </div>
+
+            <div id="pDots" class="pmodal__dots" aria-label="Image selector"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+<!-- SKILLS -->
+    <section id="skills" class="section">
+      <div class="section__head">
+        <h2>Abilities</h2>
+        <p>Languages, frameworks, tooling — the stack I’m comfortable with.</p>
+      </div>
+
+      <div class="grid grid--2">
+        <article class="card">
+          <h3>Languages</h3>
+          <div class="pill-grid">
+            <span class="pill">Java</span>
+            <span class="pill">C</span>
+            <span class="pill">C++</span>
+            <span class="pill">C#</span>
+            <span class="pill">Python</span>
+            <span class="pill">Matlab</span>
+            <span class="pill">SQL</span>
+            <span class="pill">JavaScript</span>
+            <span class="pill">HTML/CSS</span>
+          </div>
+        </article>
+
+        <article class="card">
+          <h3>Tools & Frameworks</h3>
+          <div class="pill-grid">
+            <span class="pill">Android SDK</span>
+            <span class="pill">Swing</span>
+            <span class="pill">JavaFX</span>
+            <span class="pill">Maven</span>
+            <span class="pill">Git</span>
+            <span class="pill">SQL Server</span>
+            <span class="pill">Selenium</span>
+            <span class="pill">Shopify (Liquid)</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section id="contact" class="section">
+        <div class="section__head">
+          <h2>Contact me</h2>
+          <p>Best way to reach me is email, but feel free to use the form.</p>
+        </div>
+
+        <div class="grid grid--2">
+          <article class="card">
+            <h3>Direct</h3>
+            <p class="muted">
+              <img src="./assets/icons/icons8-mail-24.png" alt="Email:"/>
+              <strong>Email:</strong> <a href="mailto:marekkoubam@gmail.com">marekkoubam@gmail.com</a><br />
+              <strong>LinkedIn:</strong> <a href="#https://www.linkedin.com/in/marek-kouba-42253a305">https://www.linkedin.com/in/marek-kouba-42253a305/</a><br />
+              <strong>GitHub:</strong> <a href="#">github.com</a><br />
+              <strong>LinkedIn:</strong> <a href="#">github.com</a><br />
+              <strong>GitHub:</strong> <a href="#">github.com</a><br />
+              <strong>GitHub:</strong> <a href="#">github.com</a><br />
+              <strong>GitHub:</strong> <a href="#">github.com</a>
+            </p>
+          </article>
+
+          <article class="card">
+            <h3>Message</h3>
+            <form class="form" onsubmit="event.preventDefault(); alert('Hook this to Formspree/Supabase next.');">
+              <label>
+                Name
+                <input type="text" name="name" placeholder="Your name" required />
+              </label>
+
+              <label>
+                Email
+                <input type="email" name="email" placeholder="you@email.com" required />
+              </label>
+
+              <label>
+                Message
+                <textarea name="message" rows="5" placeholder="Write your message..." required></textarea>
+              </label>
+
+              <button class="btn btn--primary" type="submit">Send</button>
+            </form>
+          </article>
+        </div>
+      </section>
+
+    <footer class="footer">
+      <span class="muted">© <span id="y"></span> Marek Kouba</span>
+    </footer>
+  </main>
+
+  <script src="../src/js/stars.js"></script>
+  <script>
+    document.getElementById("y").textContent = new Date().getFullYear();
+  </script>
+  <script type="module" src="../src/js/projects-planets.js"></script>
+
+</body>
+
+</html>
