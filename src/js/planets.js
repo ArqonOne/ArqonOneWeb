@@ -413,16 +413,18 @@ export function initPlanets({
 
     canvas.addEventListener("click", (e) => {
         if (performance.now() < suppressClickUntil) return;
+        const clickRect = canvas.getBoundingClientRect();
+        const clickX = e.clientX - clickRect.left;
+        const clickY = e.clientY - clickRect.top;
         const t = performance.now() / 1000;
-        const p = pickPlanet(mouse.x, mouse.y, t);
+        const p = pickPlanet(clickX, clickY, t);
         if (!p) return;
         p.pulse = 1;
 
         // Anchor popup to the clicked planet (screen coords)
-        const rect = canvas.getBoundingClientRect();
         const pos = planetPos(p, t);
-        const anchorX = rect.left + pos.x;
-        const anchorY = rect.top + pos.y;
+        const anchorX = clickRect.left + pos.x;
+        const anchorY = clickRect.top + pos.y;
 
         if (typeof onSelect === "function") onSelect({ planet: p, anchorX, anchorY, event: e });
     });
@@ -560,6 +562,8 @@ export function initPlanets({
             : null;
 
         canvas.style.cursor = hovered ? "pointer" : "default";
+        tip.classList.toggle("show", Boolean(hovered));
+        if (hovered) tip.textContent = `${hovered.name} - click`;
 
         for (const p of planets) {
             const isHover = hovered === p;

@@ -89,9 +89,105 @@ const imgEmptyEl = document.getElementById("pImgEmpty");
 const dotsEl = document.getElementById("pDots");
 const prevBtn = document.getElementById("pPrev");
 const nextBtn = document.getElementById("pNext");
+panel.tabIndex = -1;
 
 let activeProject = null;
 let activeIndex = 0;
+let closeTimer = null;
+
+function positionPanel(anchorX, anchorY) {
+  const margin = 12;
+  const panelW = panel.offsetWidth || 420;
+  const panelH = panel.offsetHeight || 420;
+
+  let left = anchorX + 24;
+  let top = anchorY - panelH / 2;
+
+  if (left + panelW + margin > window.innerWidth) {
+    left = anchorX - panelW - 24;
+  }
+
+  left = Math.max(margin, Math.min(left, window.innerWidth - panelW - margin));
+  top = Math.max(margin, Math.min(top, window.innerHeight - panelH - margin));
+
+  panel.style.left = `${left}px`;
+  panel.style.top = `${top}px`;
+  panel.style.setProperty("--pmodal-origin", `${anchorX - left}px ${anchorY - top}px`);
+}
+
+function openModal(project, anchorX, anchorY) {
+  window.clearTimeout(closeTimer);
+  activeProject = project;
+  activeIndex = 0;
+
+  titleEl.textContent = project.name;
+  descEl.textContent = project.description;
+
+  if (project.link && project.link !== "#") {
+    linkEl.href = project.link;
+    linkEl.hidden = false;
+  } else {
+    linkEl.hidden = true;
+  }
+
+  renderImage();
+
+  modal.classList.add("pmodal--visible");
+  modal.setAttribute("aria-hidden", "false");
+  positionPanel(anchorX, anchorY);
+
+  requestAnimationFrame(() => {
+    modal.classList.add("pmodal--open");
+  });
+}
+
+function closeModal() {
+  modal.classList.remove("pmodal--open");
+  modal.setAttribute("aria-hidden", "true");
+  activeProject = null;
+  closeTimer = window.setTimeout(() => {
+    modal.classList.remove("pmodal--visible");
+  }, 220);
+}
+
+function renderImage() {
+  const images = activeProject?.images ?? [];
+  const hasImages = images.length > 0;
+
+  activeIndex = hasImages
+    ? (activeIndex + images.length) % images.length
+    : 0;
+
+  imgEl.hidden = !hasImages;
+  imgEmptyEl.hidden = hasImages;
+  prevBtn.disabled = images.length <= 1;
+  nextBtn.disabled = images.length <= 1;
+
+  if (hasImages) {
+    imgEl.src = images[activeIndex];
+    imgEl.alt = `${activeProject.name} screenshot ${activeIndex + 1}`;
+  } else {
+    imgEl.removeAttribute("src");
+    imgEl.alt = "";
+  }
+
+  dotsEl.innerHTML = "";
+  images.forEach((_, index) => {
+    const dot = document.createElement("button");
+    dot.className = `pmodal__dot${index === activeIndex ? " is-active" : ""}`;
+    dot.type = "button";
+    dot.setAttribute("aria-label", `Show image ${index + 1}`);
+    dot.addEventListener("click", () => {
+      activeIndex = index;
+      renderImage();
+    });
+    dotsEl.appendChild(dot);
+  });
+}
+
+modal.addEventListener("click", (e) => {
+  if (e.target.closest("[data-close]")) closeModal();
+});
 
 // esc
 window.addEventListener("keydown", (e) => {
@@ -124,5 +220,8 @@ initPlanets({
 
     if (!planet) return;
     const project = PROJECTS[planet.id - 1]; // planet.id is 1-based
+    if (!project) return;
+
+    openModal(project, anchorX, anchorY);
   },
 });
