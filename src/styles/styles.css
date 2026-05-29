@@ -264,6 +264,105 @@ body {
   font-size: 13px;
 }
 
+/* Skill constellations */
+.constellation-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.constellation {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 18% 24%, rgba(255,255,255,0.16) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 82% 18%, rgba(255,255,255,0.10) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 62% 78%, rgba(255,255,255,0.12) 0 1px, transparent 1.6px),
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
+  padding: 14px;
+  overflow: hidden;
+}
+
+.constellation h3 {
+  margin: 0;
+  font-size: 15px;
+  letter-spacing: 0;
+}
+
+.constellation__map {
+  position: relative;
+  height: 190px;
+  margin-top: 10px;
+}
+
+.constellation__lines {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+}
+
+.constellation__lines line {
+  fill: none;
+  stroke: rgba(255,255,255,0.52);
+  stroke-width: 0.7;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  filter: drop-shadow(0 0 7px rgba(255,255,255,0.22));
+}
+
+.skill-star {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  transform: translate(-3.5px, -50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  min-width: 7px;
+  height: 7px;
+  border-radius: 999px;
+  color: rgba(255,255,255,0.82);
+  font-size: 12px;
+  line-height: 1;
+  white-space: nowrap;
+  text-shadow: 0 0 12px rgba(255,255,255,0.35);
+}
+
+.skill-star::before {
+  content: "";
+  width: 7px;
+  height: 7px;
+  flex: 0 0 auto;
+  margin-right: 6px;
+  border-radius: 999px;
+  background: rgba(255,255,255,0.92);
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.18),
+    0 0 14px rgba(255,255,255,0.38);
+}
+
+.skill-star--large::before {
+  width: 10px;
+  height: 10px;
+}
+
+.skill-star--large {
+  transform: translate(-5px, -50%);
+}
+
+.constellation:hover .skill-star::before {
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.28),
+    0 0 18px rgba(255,255,255,0.55);
+}
+
+.constellation:hover .constellation__lines line {
+  stroke: rgba(255,255,255,0.74);
+}
+
 /* Buttons */
 .btn {
   display: inline-flex;
@@ -335,6 +434,10 @@ textarea:focus {
   }
 
   .grid--2 {
+    grid-template-columns: 1fr;
+  }
+
+  .constellation-grid {
     grid-template-columns: 1fr;
   }
 
