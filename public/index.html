@@ -25,9 +25,17 @@
     </div>
   </header>
 
+  <nav class="minimap-radar" aria-label="Page minimap">
+    <a class="minimap-radar__blip minimap-radar__blip--home is-active" href="#home" aria-label="Home" style="--x: 50%; --y: 18%;"></a>
+    <a class="minimap-radar__blip minimap-radar__blip--roles" href="#roles" aria-label="Roles" style="--x: 68%; --y: 34%;"></a>
+    <a class="minimap-radar__blip minimap-radar__blip--projects" href="#projects" aria-label="Projects" style="--x: 36%; --y: 48%;"></a>
+    <a class="minimap-radar__blip minimap-radar__blip--skills" href="#skills" aria-label="Abilities" style="--x: 64%; --y: 64%;"></a>
+    <a class="minimap-radar__blip minimap-radar__blip--contact" href="#contact" aria-label="Contact" style="--x: 44%; --y: 82%;"></a>
+  </nav>
+
   <main id="top" class="container page">
     <!-- HERO -->
-    <section class="hero">
+    <section id="home" class="hero">
       <div class="hero__left">
         <h1 class="hero__title">Marek Kouba</h1>
         <p class="hero__subtitle">
@@ -343,6 +351,7 @@
   <script>
     document.getElementById("y").textContent = new Date().getFullYear();
   </script>
+  <script src="../src/js/minimap-radar.js"></script>
   <script type="module" src="../src/js/projects-planets.js"></script>
 
 </body>

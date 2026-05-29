@@ -69,9 +69,94 @@ body {
   color: var(--text);
 }
 
+/* Minimap radar */
+.minimap-radar {
+  position: fixed;
+  right: 18px;
+  top: 50%;
+  z-index: 4;
+  width: 92px;
+  aspect-ratio: 1;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 24%, rgba(255,255,255,0.09) 24.5% 25%, transparent 25.5% 48%, rgba(255,255,255,0.09) 48.5% 49%, transparent 49.5%),
+    linear-gradient(180deg, rgba(0,0,0,0.42), rgba(255,255,255,0.025));
+  box-shadow:
+    0 0 0 1px rgba(255,255,255,0.04) inset,
+    0 18px 42px rgba(0,0,0,0.36);
+  transform: translateY(-50%);
+}
+
+.minimap-radar::before,
+.minimap-radar::after {
+  content: "";
+  position: absolute;
+  inset: 11px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.minimap-radar::before {
+  border: 1px solid rgba(255,255,255,0.18);
+}
+
+.minimap-radar::after {
+  background:
+    linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(255,255,255,0.16) 50%, transparent calc(50% + 0.5px)),
+    linear-gradient(0deg, transparent calc(50% - 0.5px), rgba(255,255,255,0.16) 50%, transparent calc(50% + 0.5px));
+}
+
+.minimap-radar__blip {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  z-index: 1;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: transparent;
+  transform: translate(-50%, -50%);
+}
+
+.minimap-radar__blip::before {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px solid rgba(255,255,255,0.42);
+  border-radius: 50%;
+  background: rgba(0,0,0,0.72);
+  box-shadow: 0 0 10px rgba(255,255,255,0.18);
+}
+
+.minimap-radar__blip:hover::before,
+.minimap-radar__blip.is-active::before {
+  background: rgba(255,255,255,0.92);
+  border-color: rgba(255,255,255,0.92);
+  box-shadow:
+    0 0 0 5px rgba(255,255,255,0.08),
+    0 0 18px rgba(255,255,255,0.45);
+}
+
+.minimap-radar__blip.is-active::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border: 1px solid rgba(255,255,255,0.24);
+  border-radius: 50%;
+  pointer-events: none;
+  animation: minimap-pulse 1.8s ease-out infinite;
+}
+
+@keyframes minimap-pulse {
+  0% { transform: scale(0.65); opacity: 0.9; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
 /* Sections */
 .section {
   margin-top: 42px;
+  scroll-margin-top: 88px;
 }
 
 .section__head {
@@ -93,6 +178,7 @@ body {
   grid-template-columns: 1.4fr 0.8fr;
   gap: 22px;
   align-items: start;
+  scroll-margin-top: 88px;
 }
 
 .hero__right {
@@ -229,6 +315,7 @@ body {
 
 .cv-dock {
   position: relative;
+  box-sizing: border-box;
   display: grid;
   grid-template-columns: 86px minmax(0, 1fr);
   gap: 14px;
@@ -711,11 +798,15 @@ textarea:focus {
   display: grid;
   grid-template-columns: minmax(220px, 0.72fr) minmax(0, 1.28fr);
   gap: 14px;
+  width: 100%;
+  min-width: 0;
 }
 
 .command-console__direct,
 .command-form {
   position: relative;
+  box-sizing: border-box;
+  min-width: 0;
   border: 1px solid var(--border);
   border-radius: 8px;
   background:
@@ -794,6 +885,7 @@ textarea:focus {
 }
 
 .command-form label {
+  min-width: 0;
   color: rgba(255,255,255,0.68);
   font-size: 12px;
   letter-spacing: 0.08em;
@@ -801,6 +893,8 @@ textarea:focus {
 
 .command-form input,
 .command-form textarea {
+  box-sizing: border-box;
+  min-width: 0;
   border-radius: 8px;
   border-color: rgba(255,255,255,0.14);
   background: rgba(0,0,0,0.42);
@@ -837,6 +931,10 @@ textarea:focus {
 @media (max-width: 920px) {
   .hero {
     grid-template-columns: 1fr;
+  }
+
+  .minimap-radar {
+    display: none;
   }
 
   .availability-status {
@@ -876,6 +974,11 @@ textarea:focus {
 
   .command-console {
     grid-template-columns: 1fr;
+  }
+
+  .command-console__direct,
+  .command-form {
+    width: 100%;
   }
 
   .topbar__inner {
