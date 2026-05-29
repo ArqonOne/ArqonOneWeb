@@ -95,6 +95,11 @@ body {
   align-items: start;
 }
 
+.hero__right {
+  display: grid;
+  gap: 14px;
+}
+
 .hero__title {
   margin: 10px 0 10px;
   font-size: 44px;
@@ -140,13 +145,95 @@ body {
   font-size: 14px;
 }
 
+.availability-status {
+  position: relative;
+  display: grid;
+  grid-template-columns: 18px minmax(0, 1fr) auto;
+  gap: 12px;
+  align-items: center;
+  width: min(420px, 100%);
+  margin-top: 18px;
+  padding: 12px 14px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  background:
+    repeating-linear-gradient(180deg, rgba(255,255,255,0.026) 0 1px, transparent 1px 11px),
+    linear-gradient(180deg, rgba(0,0,0,0.38), rgba(255,255,255,0.025));
+  overflow: hidden;
+}
+
+.availability-status::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.08), transparent);
+  opacity: 0.24;
+}
+
+.availability-status__signal {
+  position: relative;
+  z-index: 1;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.92);
+  box-shadow: 0 0 14px rgba(255,255,255,0.46);
+}
+
+.availability-status__signal::after {
+  content: "";
+  position: absolute;
+  inset: -7px;
+  border: 1px solid rgba(255,255,255,0.28);
+  border-radius: 50%;
+  animation: status-pulse 1.9s ease-out infinite;
+}
+
+.availability-status__copy {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 3px;
+}
+
+.availability-status__label {
+  color: rgba(255,255,255,0.58);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.availability-status__value {
+  color: rgba(255,255,255,0.90);
+  font-size: 14px;
+}
+
+.availability-status__tag {
+  position: relative;
+  z-index: 1;
+  border: 1px solid rgba(255,255,255,0.16);
+  border-radius: 999px;
+  padding: 5px 8px;
+  background: rgba(255,255,255,0.07);
+  color: rgba(255,255,255,0.72);
+  font-size: 11px;
+  line-height: 1;
+  letter-spacing: 0.12em;
+}
+
+@keyframes status-pulse {
+  0% { transform: scale(0.65); opacity: 0.9; }
+  100% { transform: scale(1.85); opacity: 0; }
+}
+
 .cv-dock {
   position: relative;
   display: grid;
   grid-template-columns: 86px minmax(0, 1fr);
   gap: 14px;
   align-items: center;
-  width: min(420px, 100%);
+  width: 100%;
   margin-top: 18px;
   padding: 12px;
   border: 1px solid rgba(255,255,255,0.14);
@@ -750,6 +837,15 @@ textarea:focus {
 @media (max-width: 920px) {
   .hero {
     grid-template-columns: 1fr;
+  }
+
+  .availability-status {
+    grid-template-columns: 18px minmax(0, 1fr);
+  }
+
+  .availability-status__tag {
+    grid-column: 2;
+    justify-self: start;
   }
 
   .grid--3 {
