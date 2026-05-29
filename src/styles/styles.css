@@ -211,6 +211,119 @@ body {
   text-decoration: underline;
 }
 
+/* Orbit timeline */
+.orbit-timeline {
+  position: relative;
+  margin-top: 4px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding: 6px 0 14px;
+  scroll-behavior: smooth;
+  scroll-snap-type: x proximity;
+  scrollbar-color: rgba(255,255,255,0.35) transparent;
+  scrollbar-width: thin;
+}
+
+.orbit-timeline__track {
+  position: relative;
+  display: flex;
+  gap: 48px;
+  width: max-content;
+  min-width: 100%;
+  height: 430px;
+  padding: 18px 48px;
+}
+
+.orbit-timeline__track::before,
+.orbit-timeline__track::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 0;
+  bottom: 0;
+  pointer-events: none;
+}
+
+.orbit-timeline__track::before {
+  background:
+    url("data:image/svg+xml,%3Csvg width='760' height='430' viewBox='0 0 760 430' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 216 C80 158 154 158 236 216 S392 274 472 216 S628 158 760 216' fill='none' stroke='%23ffffff' stroke-opacity='0.52' stroke-width='1.2' stroke-linecap='round' stroke-dasharray='7 10'/%3E%3C/svg%3E")
+    0 0 / 760px 100% repeat-x;
+  filter: drop-shadow(0 0 9px rgba(255,255,255,0.18));
+}
+
+.orbit-timeline__track::after {
+  background:
+    url("data:image/svg+xml,%3Csvg width='760' height='430' viewBox='0 0 760 430' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 250 C84 198 160 198 238 250 S392 302 474 250 S634 198 760 250' fill='none' stroke='%23ffffff' stroke-opacity='0.16' stroke-width='0.9' stroke-linecap='round' stroke-dasharray='2 13'/%3E%3C/svg%3E")
+    0 0 / 760px 100% repeat-x;
+}
+
+.orbit-event {
+  --orbit-y: 50%;
+  position: relative;
+  flex: 0 0 320px;
+  width: 320px;
+  height: 100%;
+  scroll-snap-align: center;
+}
+
+.orbit-event:nth-child(6n + 1) {
+  --orbit-y: 50%;
+}
+
+.orbit-event:nth-child(6n + 2) {
+  --orbit-y: 38%;
+}
+
+.orbit-event:nth-child(6n + 3) {
+  --orbit-y: 50%;
+}
+
+.orbit-event:nth-child(6n + 4) {
+  --orbit-y: 62%;
+}
+
+.orbit-event:nth-child(6n + 5) {
+  --orbit-y: 50%;
+}
+
+.orbit-event:nth-child(6n) {
+  --orbit-y: 38%;
+}
+
+.orbit-event__body {
+  position: absolute;
+  left: 0;
+  right: 0;
+  z-index: 1;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 16% 22%, rgba(255,255,255,0.14) 0 1px, transparent 1.6px),
+    linear-gradient(180deg, rgba(255,255,255,0.055), rgba(255,255,255,0.025));
+  padding: 16px;
+}
+
+.orbit-event:nth-child(odd) .orbit-event__body {
+  bottom: calc(100% - var(--orbit-y) - 7px);
+}
+
+.orbit-event:nth-child(even) .orbit-event__body {
+  top: calc(var(--orbit-y) - 7px);
+}
+
+.orbit-event__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.orbit-event h3 {
+  margin: 0;
+  font-size: 16px;
+}
+
 /* Avatar card */
 .avatar-card {
   border: 1px solid var(--border);
@@ -439,6 +552,41 @@ textarea:focus {
 
   .constellation-grid {
     grid-template-columns: 1fr;
+  }
+
+  .orbit-timeline {
+    overflow-x: visible;
+    padding: 0;
+  }
+
+  .orbit-timeline__track {
+    display: grid;
+    gap: 14px;
+    width: 100%;
+    min-width: 0;
+    height: auto;
+    padding: 0;
+  }
+
+  .orbit-timeline__track::before,
+  .orbit-timeline__track::after {
+    display: none;
+  }
+
+  .orbit-event {
+    position: relative;
+    flex: none;
+    height: auto;
+    width: 100%;
+  }
+
+  .orbit-event__body,
+  .orbit-event:nth-child(odd) .orbit-event__body,
+  .orbit-event:nth-child(even) .orbit-event__body {
+    position: relative;
+    top: auto;
+    bottom: auto;
+    padding-left: 38px;
   }
 
   .topbar__inner {
