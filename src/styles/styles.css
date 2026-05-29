@@ -1,7 +1,6 @@
 :root {
   --text: rgba(255, 255, 255, 0.92);
   --muted: rgba(255, 255, 255, 0.7);
-  --card: rgba(255, 255, 255, 0.06);
   --card2: rgba(255, 255, 255, 0.09);
   --border: rgba(255, 255, 255, 0.10);
   --accent: rgba(255, 255, 255, 0.92);
@@ -22,51 +21,6 @@ body {
   position: relative;
   z-index: 1;
   padding: 110px 0 64px;
-}
-
-/* Topbar */
-.topbar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  z-index: 5;
-  background: rgba(0, 0, 0, 0.35);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(10px);
-}
-
-.topbar__inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: 70px;
-}
-
-.brand {
-  text-decoration: none;
-  color: var(--text);
-  font-weight: 700;
-  letter-spacing: 0.5px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 12px;
-  padding: 8px 12px;
-  background: rgba(255, 255, 255, 0.04);
-}
-
-.nav {
-  display: flex;
-  gap: 18px;
-}
-
-.nav a {
-  color: var(--muted);
-  text-decoration: none;
-  font-size: 14px;
-}
-
-.nav a:hover {
-  color: var(--text);
 }
 
 /* Minimap radar */
@@ -130,7 +84,8 @@ body {
 }
 
 .minimap-radar__blip:hover::before,
-.minimap-radar__blip.is-active::before {
+.minimap-radar__blip.is-active::before,
+.minimap-radar__blip[aria-current="location"]::before {
   background: rgba(255,255,255,0.92);
   border-color: rgba(255,255,255,0.92);
   box-shadow:
@@ -138,7 +93,8 @@ body {
     0 0 18px rgba(255,255,255,0.45);
 }
 
-.minimap-radar__blip.is-active::after {
+.minimap-radar__blip.is-active::after,
+.minimap-radar__blip[aria-current="location"]::after {
   content: "";
   position: absolute;
   inset: 0;
@@ -419,40 +375,6 @@ body {
   to { transform: rotate(360deg); }
 }
 
-/* Cards + grids */
-.grid {
-  display: grid;
-  gap: 14px;
-}
-
-.grid--2 {
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-}
-
-.grid--3 {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.card {
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  background: linear-gradient(180deg, var(--card), rgba(255, 255, 255, 0.03));
-  backdrop-filter: blur(10px);
-  padding: 16px 16px;
-}
-
-.card__top {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-}
-
-.card h3 {
-  margin: 0;
-  font-size: 16px;
-}
-
 .muted {
   color: var(--muted);
 }
@@ -472,21 +394,13 @@ body {
   color: var(--muted);
 }
 
-.card__links {
-  display: flex;
-  gap: 12px;
-  margin-top: 12px;
-}
-
-.card__links a,
-.avatar-card__links a,
-.card a {
+.avatar-card__links a {
   color: rgba(255, 255, 255, 0.85);
   text-decoration: none;
   font-size: 14px;
 }
 
-.card a:hover {
+.avatar-card__links a:hover {
   text-decoration: underline;
 }
 
@@ -763,12 +677,6 @@ body {
   background: rgba(255, 255, 255, 0.10);
 }
 
-/* Form */
-.form {
-  display: grid;
-  gap: 10px;
-}
-
 label {
   display: grid;
   gap: 6px;
@@ -944,14 +852,6 @@ textarea:focus {
   .availability-status__tag {
     grid-column: 2;
     justify-self: start;
-  }
-
-  .grid--3 {
-    grid-template-columns: 1fr;
-  }
-
-  .grid--2 {
-    grid-template-columns: 1fr;
   }
 
   .constellation-grid {

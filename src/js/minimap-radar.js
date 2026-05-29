@@ -1,50 +1,70 @@
-const radarLinks = [...document.querySelectorAll(".minimap-radar__blip")];
-const radarSections = radarLinks
-  .map((link) => ({
-    link,
-    id: link.getAttribute("href")?.slice(1),
-    target: document.querySelector(link.getAttribute("href")),
-  }))
-  .filter((item) => item.id && item.target);
+const radarSections = [...document.querySelectorAll(".minimap-radar__blip")]
+  .map((link) => {
+    const id = link.hash.slice(1);
+    const target = document.getElementById(id);
+    return { id, link, target };
+  })
+  .filter(({ id, target }) => id && target);
 
-function setActiveRadarBlip(id) {
-  radarSections.forEach(({ link }) => {
-    link.classList.toggle("is-active", link.getAttribute("href") === `#${id}`);
-  });
+let lastScrollTop = -1;
+let lastActiveId = "";
+
+function pageScrollTop() {
+  return window.scrollY
+    || window.pageYOffset
+    || document.scrollingElement?.scrollTop
+    || document.documentElement.scrollTop
+    || document.body.scrollTop
+    || 0;
 }
 
-function updateRadarFromScroll() {
-  if (!radarSections.length) return;
+function setActiveRadarBlip(id) {
+  if (!id || id === lastActiveId) return;
+  lastActiveId = id;
 
-  const probeY = window.innerHeight * 0.36;
-  let active = radarSections[0];
-  let smallestDistance = Infinity;
+  for (const section of radarSections) {
+    const active = section.id === id;
+    section.link.classList.toggle("is-active", active);
+    section.link.setAttribute("aria-current", active ? "location" : "false");
+  }
+}
+
+function currentSectionId() {
+  let current = radarSections[0]?.id;
+  const activationLine = 140;
 
   for (const section of radarSections) {
     const rect = section.target.getBoundingClientRect();
-    const topDistance = Math.abs(rect.top - probeY);
-    const containsProbe = rect.top <= probeY && rect.bottom >= probeY;
-    const distance = containsProbe ? 0 : topDistance;
-
-    if (distance < smallestDistance) {
-      smallestDistance = distance;
-      active = section;
-    }
+    if (rect.top <= activationLine) current = section.id;
   }
 
-  setActiveRadarBlip(active.id);
+  return current;
 }
 
-radarSections.forEach(({ link, target }) => {
+function updateRadar() {
+  setActiveRadarBlip(currentSectionId());
+}
+
+function watchScrollPosition() {
+  const scrollTop = pageScrollTop();
+  if (scrollTop !== lastScrollTop) {
+    lastScrollTop = scrollTop;
+    updateRadar();
+  }
+  requestAnimationFrame(watchScrollPosition);
+}
+
+for (const { id, link, target } of radarSections) {
   link.addEventListener("click", (event) => {
     event.preventDefault();
     target.scrollIntoView({ behavior: "smooth", block: "start" });
-    history.replaceState(null, "", `#${target.id}`);
-    setActiveRadarBlip(target.id);
+    history.replaceState(null, "", `#${id}`);
+    setActiveRadarBlip(id);
   });
-});
+}
 
-window.addEventListener("scroll", updateRadarFromScroll, { passive: true });
-window.addEventListener("resize", updateRadarFromScroll);
-window.addEventListener("load", updateRadarFromScroll);
-updateRadarFromScroll();
+window.addEventListener("resize", updateRadar);
+window.addEventListener("load", updateRadar);
+updateRadar();
+setTimeout(updateRadar, 0);
+requestAnimationFrame(watchScrollPosition);

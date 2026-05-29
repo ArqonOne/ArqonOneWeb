@@ -254,11 +254,6 @@ export function initPlanets({
         ctx.globalAlpha = 1;
     }
 
-    // NOTE: in your “inject” use-case, you probably DON'T want planets.js to clear the background.
-    // So we do NOT fillRect() the whole screen here. We only draw planets.
-    // Your starfield stays visible behind.
-
-    // ===== Planets def =====
     const PLANETS_DEF = planetsDef ?? [
         { name: "Marble", x: 0.16, y: 0.52, r: 26, ring: false, look: { type: "marble", outline: 2.4, jitter: 1.2, passes: 2, hatchAlpha: 0.55 } },
         { name: "Crater", x: 0.29, y: 0.52, r: 56, ring: false, look: { type: "crater", outline: 3.2, jitter: 1.4, passes: 2, craterCount: 7 } },
@@ -273,11 +268,8 @@ export function initPlanets({
         id: i + 1,
         name: p.name,
         category: p.category ?? "",
-        // "preferred" normalized positions (optional)
         nx: typeof p.x === "number" ? p.x : null,
         ny: typeof p.y === "number" ? p.y : null,
-
-        // world-space base position (computed)
         wx: 0,
         wy: 0,
         r: p.r,
@@ -523,12 +515,10 @@ export function initPlanets({
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
 
-        /* ===== ADD THIS BLOCK ===== */
         ctx.beginPath();
         ctx.arc(x, y, rr, 0, Math.PI * 2);
-        ctx.fillStyle = "#000";   // black planet fill
+        ctx.fillStyle = "#000";
         ctx.fill();
-        /* ========================== */
 
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
@@ -680,7 +670,6 @@ export function initPlanets({
 
     requestAnimationFrame(frame);
 
-    // return a small API (optional)
     function setFilterCategory(category) {
         activeCategory = category || "All";
         mouse.active = false;

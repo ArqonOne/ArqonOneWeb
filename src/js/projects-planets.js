@@ -1,130 +1,84 @@
 import { initPlanets } from "./planets.js";
 
 const PROJECTS = [
-      {
-        key: "stable",
-        name: "STable (Swing Table Component)",
-        short: "STable",
-        description:
-          "Custom JTable wrapper with column filters, filter types, row numbering, and performance improvements for big datasets.",
-        category: "Java UI",
-        importance: 1,
-        images: [
-          // Add your screenshots here, e.g. "./assets/stable/1.png"
-        ],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "map",
-        name: "Map Panel + Route Planning",
-        short: "Map",
-        description:
-          "Map UI with search (Nominatim), draggable interactions, markers, and planned routing visualization.",
-        category: "Java Tooling",
-        importance: 3,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "giftlist",
-        name: "Gift List Web App",
-        short: "Email client",
-        description:
-          "Simple web app to share gift ideas and mark items as purchased so friends don’t duplicate gifts.",
-        category: "Web App",
-        importance: 3,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "math",
-        name: "Math Practice Platform",
-        short: "",
-        description:
-          "Interactive math practice engine with step-by-step solutions, structured question bank, and dynamic UI widgets.",
-        category: "Learning Platform",
-        importance: 4,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "shopify",
-        name: "Shopify Theme Tooling",
-        short: "Selios",
-        description:
-          "Theme customization and internal tooling to speed up content and template workflows.",
-        category: "Web Tooling",
-        importance: 3,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "android",
-        name: "Android UI Components",
-        short: "Android",
-        description:
-          "Fragments + RecyclerView based screens with custom components and consistent UX patterns.",
-        category: "Android",
-        importance: 5,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "db",
-        name: "Order / Display SQL Tooling",
-        short: "SQL Tooling",
-        description:
-          "Java desktop tooling for orders/displays backed by SQL Server; CRUD, imports, and data conversion utilities.",
-        category: "Database Tooling",
-        importance: 5,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "test-orbit-a",
-        name: "Test Project: Orbit Archive",
-        short: "Archive",
-        description:
-          "Temporary project entry used to test overflow movement, planet selection, and popup positioning.",
-        category: "Test Node",
-        importance: 2,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "test-orbit-b",
-        name: "Test Project: Lunar Notes",
-        short: "Notes",
-        description:
-          "Temporary project entry used to make the planet row wider than the visible canvas.",
-        category: "Test Node",
-        importance: 1,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "test-orbit-c",
-        name: "Test Project: Signal Board",
-        short: "Signal",
-        description:
-          "Temporary project entry for checking auto-pan, hover pause, and click behavior.",
-        category: "Test Node",
-        importance: 3,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-      {
-        key: "test-orbit-d",
-        name: "Test Project: Docking UI",
-        short: "Docking",
-        description:
-          "Temporary project entry for verifying the far-right planets become reachable.",
-        category: "Test Node",
-        importance: 2,
-        images: [],
-        link: "https://github.com/ArqonOne",
-      },
-    ];
+  {
+    key: "stable",
+    name: "STable (Swing Table Component)",
+    short: "STable",
+    description:
+      "Custom JTable wrapper with column filters, filter types, row numbering, and performance improvements for big datasets.",
+    category: "Java UI",
+    importance: 1,
+    images: [],
+    link: "https://github.com/ArqonOne",
+  },
+  {
+    key: "map",
+    name: "Map Panel + Route Planning",
+    short: "Map",
+    description:
+      "Map UI with search (Nominatim), draggable interactions, markers, and planned routing visualization.",
+    category: "Java Tooling",
+    importance: 3,
+    images: [],
+    link: "https://github.com/ArqonOne",
+  },
+  {
+    key: "giftlist",
+    name: "Gift List Web App",
+    short: "Email client",
+    description:
+      "Simple web app to share gift ideas and mark items as purchased so friends don’t duplicate gifts.",
+    category: "Web App",
+    importance: 3,
+    images: [],
+    link: "https://github.com/ArqonOne",
+  },
+  {
+    key: "math",
+    name: "Math Practice Platform",
+    short: "",
+    description:
+      "Interactive math practice engine with step-by-step solutions, structured question bank, and dynamic UI widgets.",
+    category: "Learning Platform",
+    importance: 4,
+    images: [],
+    link: "https://github.com/ArqonOne",
+  },
+  {
+    key: "shopify",
+    name: "Shopify Theme Tooling",
+    short: "Selios",
+    description:
+      "Theme customization and internal tooling to speed up content and template workflows.",
+    category: "Web Tooling",
+    importance: 3,
+    images: [],
+    link: "https://github.com/ArqonOne",
+  },
+  {
+    key: "android",
+    name: "Android UI Components",
+    short: "Android",
+    description:
+      "Fragments + RecyclerView based screens with custom components and consistent UX patterns.",
+    category: "Android",
+    importance: 5,
+    images: [],
+    link: "https://github.com/ArqonOne",
+  },
+  {
+    key: "db",
+    name: "Order / Display SQL Tooling",
+    short: "SQL Tooling",
+    description:
+      "Java desktop tooling for orders/displays backed by SQL Server; CRUD, imports, and data conversion utilities.",
+    category: "Database Tooling",
+    importance: 5,
+    images: [],
+    link: "https://github.com/ArqonOne",
+  },
+];
 
 const CATEGORY_PLANETS = {
   "Java UI": { ring: false, look: { type: "marble", outline: 2.4, jitter: 1.2, passes: 2, hatchAlpha: 0.55 } },
@@ -134,11 +88,10 @@ const CATEGORY_PLANETS = {
   "Web Tooling": { ring: false, look: { type: "halo", outline: 3.6, jitter: 1.1, passes: 2, halo: 0.9 } },
   "Android": { ring: true, look: { type: "ringed", outline: 2.8, jitter: 1.2, passes: 2, ringWidth: 2.8, ringDouble: true } },
   "Database Tooling": { ring: false, look: { type: "dots", outline: 2.2, jitter: 1.5, passes: 2, dotDensity: 0.016 } },
-  "Test Node": { ring: false, look: { type: "dots", outline: 2.2, jitter: 1.5, passes: 2, dotDensity: 0.016 } },
 };
 
 function projectPlanet(project, index) {
-  const preset = CATEGORY_PLANETS[project.category] ?? CATEGORY_PLANETS["Test Node"];
+  const preset = CATEGORY_PLANETS[project.category] ?? CATEGORY_PLANETS["Java UI"];
   const importance = Math.max(1, Math.min(5, project.importance ?? 3));
 
   return {
@@ -310,16 +263,6 @@ function renderImage() {
   });
 }
 
-function placeholderProject(planet) {
-  return {
-    name: planet.name,
-    description:
-      "Temporary placeholder planet. Add a matching entry in PROJECTS to show a real project description here.",
-    images: [],
-    link: "#",
-  };
-}
-
 modal.addEventListener("click", (e) => {
   if (e.target.closest("[data-close]")) closeModal();
 });
@@ -356,7 +299,8 @@ planetsApi = initPlanets({
     const anchorY = payload?.anchorY ?? 0;
 
     if (!planet) return;
-    const project = PROJECTS[planet.id - 1] ?? placeholderProject(planet); // planet.id is 1-based
+    const project = PROJECTS[planet.id - 1];
+    if (!project) return;
 
     openModal(project, anchorX, anchorY);
   },
