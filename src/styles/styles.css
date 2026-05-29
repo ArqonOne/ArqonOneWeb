@@ -20,7 +20,7 @@ body {
 .page {
   position: relative;
   z-index: 1;
-  padding: 110px 0 64px;
+  padding: 64px 0 64px;
 }
 
 /* Minimap radar */
