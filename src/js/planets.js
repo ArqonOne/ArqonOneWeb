@@ -4,6 +4,8 @@ export function initPlanets({
     containerId = null,
     planetsDef = null,
     onSelect = null,
+    autoPan = true,
+    autoPanSpeed = 16,
 } = {}) {
     const canvas = document.getElementById(canvasId);
     const ctx = canvas.getContext("2d");
@@ -19,6 +21,7 @@ export function initPlanets({
     // All drawing happens in viewport coords: (worldX - cameraX).
     let worldW = 0;
     let cameraX = 0;
+    let targetCameraX = 0;
 
     // UI: side arrows for panning (created on demand)
     let navEl = null;
@@ -31,8 +34,19 @@ export function initPlanets({
     let camStartX = 0;
     let panMoved = 0;
     let suppressClickUntil = 0;
+    let autoPanDir = 1;
+    let autoPanPauseUntil = performance.now() + 1400;
+    let motionPaused = false;
 
     const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+    const EDGE_SAFE_ZONE = 78;
+    const maxCameraX = () => Math.max(0, worldW - w);
+
+    function setCameraTarget(x, immediate = false) {
+        targetCameraX = clamp(x, 0, maxCameraX());
+        if (immediate) cameraX = targetCameraX;
+        syncNavState();
+    }
 
     let needsRelayout = true;
 
@@ -52,6 +66,20 @@ export function initPlanets({
     window.addEventListener("resize", resize);
     resize();
 
+    function pauseAutoPan(ms = 2200) {
+        autoPanPauseUntil = performance.now() + ms;
+    }
+
+    function setMotionPaused(paused) {
+        motionPaused = paused;
+        if (motionPaused) {
+            targetCameraX = cameraX;
+            isPanning = false;
+        } else {
+            pauseAutoPan(1200);
+        }
+        syncNavState();
+    }
 
     const rand = (min, max) => Math.random() * (max - min) + min;
 
@@ -72,6 +100,7 @@ export function initPlanets({
     canvas.addEventListener("mouseleave", () => {
         mouse.active = false;
         tip.classList.remove("show");
+        pauseAutoPan(900);
     });
 
 
@@ -242,6 +271,7 @@ export function initPlanets({
     const planets = PLANETS_DEF.map((p, i) => ({
         id: i + 1,
         name: p.name,
+        category: p.category ?? "",
         // "preferred" normalized positions (optional)
         nx: typeof p.x === "number" ? p.x : null,
         ny: typeof p.y === "number" ? p.y : null,
@@ -255,6 +285,7 @@ export function initPlanets({
         hover: 0,
         pulse: 0,
         phase: rand(0, Math.PI * 2),
+        layoutYOffset: rand(-18, 18),
         bobSpeed: rand(0.6, 1.1),
         bobAmp: rand(4, 10),
         ringRot: rand(-0.25, 0.25),
@@ -276,12 +307,12 @@ export function initPlanets({
         const step = () => Math.max(240, w * 0.75);
 
         navPrev.addEventListener("click", () => {
-            cameraX = clamp(cameraX - step(), 0, Math.max(0, worldW - w));
-            syncNavState();
+            pauseAutoPan(3200);
+            setCameraTarget(targetCameraX - step());
         });
         navNext.addEventListener("click", () => {
-            cameraX = clamp(cameraX + step(), 0, Math.max(0, worldW - w));
-            syncNavState();
+            pauseAutoPan(3200);
+            setCameraTarget(targetCameraX + step());
         });
 
         // wheel-to-pan (trackpads will feel natural)
@@ -292,8 +323,8 @@ export function initPlanets({
                 // Prefer horizontal wheel; fallback to vertical wheel.
                 const delta = Math.abs(e.deltaX) > Math.abs(e.deltaY) ? e.deltaX : e.deltaY;
                 if (delta === 0) return;
-                cameraX = clamp(cameraX + delta, 0, Math.max(0, worldW - w));
-                syncNavState();
+                pauseAutoPan(3200);
+                setCameraTarget(targetCameraX + delta);
                 e.preventDefault();
             },
             { passive: false }
@@ -302,9 +333,10 @@ export function initPlanets({
         // drag-to-pan
         canvas.addEventListener("mousedown", (e) => {
             if (worldW <= w + 1) return;
+            pauseAutoPan(3200);
             isPanning = true;
             panStartX = e.clientX;
-            camStartX = cameraX;
+            camStartX = targetCameraX;
             panMoved = 0;
         });
         window.addEventListener("mouseup", () => {
@@ -315,8 +347,8 @@ export function initPlanets({
             if (!isPanning) return;
             const dx = e.clientX - panStartX;
             panMoved = Math.max(panMoved, Math.abs(dx));
-            cameraX = clamp(camStartX - dx, 0, Math.max(0, worldW - w));
-            syncNavState();
+            setCameraTarget(camStartX - dx, true);
+            pauseAutoPan(1400);
         });
     }
 
@@ -325,31 +357,37 @@ export function initPlanets({
         const overflow = worldW > w + 1;
         navEl.classList.toggle("is-visible", overflow);
         if (!overflow) return;
-        const maxCam = Math.max(0, worldW - w);
-        navPrev.disabled = cameraX <= 0.5;
-        navNext.disabled = cameraX >= maxCam - 0.5;
+        const maxCam = maxCameraX();
+        navPrev.disabled = targetCameraX <= 0.5;
+        navNext.disabled = targetCameraX >= maxCam - 0.5;
     }
 
     function layoutPlanets() {
         // If the user provided preferred x/y, use them as seeds; otherwise place in a row.
-        const pad = 26;
-        const gap = 20; // min distance between circles (in px)
+        const basePad = 26;
+        const gap = clamp(w * 0.1, 56, 90); // min distance between circles (in px)
+        const usePreferredLayout =
+            planets.length <= 7 &&
+            planets.every((p) => typeof p.nx === "number" && p.nx >= 0 && p.nx <= 1 && typeof p.ny === "number");
+        const maxPlanetRadius = planets.reduce((max, p) => Math.max(max, p.r), 0);
+        const xPad = usePreferredLayout ? basePad : EDGE_SAFE_ZONE + maxPlanetRadius;
+        const yPad = basePad;
 
         const sumDiameters = planets.reduce((acc, p) => acc + p.r * 2, 0);
-        const minWorld = sumDiameters + gap * (planets.length - 1) + pad * 2;
+        const minWorld = sumDiameters + gap * (planets.length - 1) + xPad * 2;
         worldW = Math.max(w, Math.ceil(minWorld));
 
         // Initial positions
-        let xCursor = pad;
+        let xCursor = xPad;
         for (let i = 0; i < planets.length; i++) {
             const p = planets[i];
 
-            if (typeof p.nx === "number" && typeof p.ny === "number") {
-                p.wx = clamp(p.nx * worldW, pad + p.r, worldW - pad - p.r);
-                p.wy = clamp(p.ny * h, pad + p.r, h - pad - p.r);
+            if (usePreferredLayout) {
+                p.wx = clamp(p.nx * worldW, xPad + p.r, worldW - xPad - p.r);
+                p.wy = clamp(p.ny * h, yPad + p.r, h - yPad - p.r);
             } else {
                 p.wx = xCursor + p.r;
-                p.wy = h * 0.52 + rand(-18, 18);
+                p.wy = clamp(h * 0.5 + p.layoutYOffset, yPad + p.r, h - yPad - p.r);
                 xCursor = p.wx + p.r + gap;
             }
         }
@@ -382,15 +420,15 @@ export function initPlanets({
             // bounds + mild centering force
             const centerY = h * 0.52;
             for (const p of planets) {
-                p.wx = clamp(p.wx, pad + p.r, worldW - pad - p.r);
-                p.wy = clamp(p.wy + (centerY - p.wy) * 0.015, pad + p.r, h - pad - p.r);
+                p.wx = clamp(p.wx, xPad + p.r, worldW - xPad - p.r);
+                p.wy = clamp(p.wy + (centerY - p.wy) * 0.015, yPad + p.r, h - yPad - p.r);
             }
 
             if (moved < 0.5) break;
         }
 
-        // Keep camera in bounds after relayout
-        cameraX = clamp(cameraX, 0, Math.max(0, worldW - w));
+        // Keep camera in bounds after relayout.
+        setCameraTarget(targetCameraX, true);
         ensureNav();
         syncNavState();
     }
@@ -405,14 +443,18 @@ export function initPlanets({
         for (let i = planets.length - 1; i >= 0; i--) {
             const p = planets[i];
             const pos = planetPos(p, t);
+            const view = planetViewState(pos.x, p.r);
+            if (view.alpha < 0.18) continue;
             const dx = mx - pos.x, dy = my - pos.y;
-            if (dx * dx + dy * dy <= p.r * p.r) return p;
+            const hitR = p.r * view.scale;
+            if (dx * dx + dy * dy <= hitR * hitR) return p;
         }
         return null;
     }
 
     canvas.addEventListener("click", (e) => {
         if (performance.now() < suppressClickUntil) return;
+        pauseAutoPan(4200);
         const clickRect = canvas.getBoundingClientRect();
         const clickX = e.clientX - clickRect.left;
         const clickY = e.clientY - clickRect.top;
@@ -451,11 +493,25 @@ export function initPlanets({
         ctx.restore();
     }
 
-    function drawPlanet(p, x, y, t) {
+    function planetViewState(x, r) {
+        if (worldW <= w + 1) return { scale: 1, alpha: 1 };
+
+        const edgeDistance = Math.min(x, w - x);
+        const edgeProgress = clamp((edgeDistance - EDGE_SAFE_ZONE + r * 0.3) / Math.max(1, r * 2.35), 0, 1);
+        const easedEdge = edgeProgress * edgeProgress * (3 - 2 * edgeProgress);
+
+        return {
+            scale: 0.18 + easedEdge * 0.88,
+            alpha: easedEdge,
+        };
+    }
+
+    function drawPlanet(p, x, y, t, view = { scale: 1, alpha: 1 }) {
         const lk = p.look;
-        const rr = p.r * (1 + p.hover * 0.06) * (1 + p.pulse * 0.12);
+        const rr = p.r * view.scale * (1 + p.hover * 0.06) * (1 + p.pulse * 0.12);
 
         ctx.save();
+        ctx.globalAlpha = view.alpha;
         ctx.lineCap = "round";
         ctx.lineJoin = "round";
 
@@ -531,18 +587,45 @@ export function initPlanets({
         }
 
         if (p.hover > 0.08) {
-            ctx.globalAlpha = Math.min(1, p.hover);
+            ctx.globalAlpha = view.alpha * Math.min(1, p.hover);
             ctx.fillStyle = "rgba(255,255,255,0.86)";
             ctx.font = "12px system-ui, -apple-system, Segoe UI, Roboto, Arial";
             ctx.textAlign = "center";
             ctx.fillText(p.name, x, y + rr + 22);
-            ctx.globalAlpha = 1;
+            ctx.globalAlpha = view.alpha;
         }
 
         ctx.restore();
     }
 
     let last = performance.now();
+
+    function updateAutoPan(now, dt) {
+        if (motionPaused || !autoPan || worldW <= w + 1 || mouse.active || isPanning || now < autoPanPauseUntil) return;
+
+        const maxCam = maxCameraX();
+        setCameraTarget(targetCameraX + autoPanDir * autoPanSpeed * dt);
+
+        if (targetCameraX <= 0.5) {
+            autoPanDir = 1;
+            pauseAutoPan(900);
+        } else if (targetCameraX >= maxCam - 0.5) {
+            autoPanDir = -1;
+            pauseAutoPan(900);
+        }
+    }
+
+    function updateCamera(dt) {
+        if (motionPaused) return;
+
+        if (Math.abs(cameraX - targetCameraX) < 0.05) {
+            cameraX = targetCameraX;
+            return;
+        }
+
+        const ease = 1 - Math.pow(0.0008, dt);
+        cameraX += (targetCameraX - cameraX) * ease;
+    }
 
     function frame(now) {
         const dt = Math.min(0.033, (now - last) / 1000);
@@ -554,6 +637,9 @@ export function initPlanets({
             layoutPlanets();
         }
 
+        updateAutoPan(now, dt);
+        updateCamera(dt);
+
         // Clear ONLY this canvas (not the whole screen background)
         ctx.clearRect(0, 0, w, h);
 
@@ -563,7 +649,11 @@ export function initPlanets({
 
         canvas.style.cursor = hovered ? "pointer" : "default";
         tip.classList.toggle("show", Boolean(hovered));
-        if (hovered) tip.textContent = `${hovered.name} - click`;
+        if (hovered) {
+            tip.textContent = hovered.category
+                ? `${hovered.name} - ${hovered.category} - click`
+                : `${hovered.name} - click`;
+        }
 
         for (const p of planets) {
             const isHover = hovered === p;
@@ -573,7 +663,8 @@ export function initPlanets({
             if (p.pulse < 0.001) p.pulse = 0;
 
             const pos = planetPos(p, t);
-            drawPlanet(p, pos.x, pos.y, t);
+            const view = planetViewState(pos.x, p.r);
+            drawPlanet(p, pos.x, pos.y, t, view);
         }
 
         requestAnimationFrame(frame);
@@ -582,5 +673,5 @@ export function initPlanets({
     requestAnimationFrame(frame);
 
     // return a small API (optional)
-    return { planets };
+    return { planets, setMotionPaused };
 }

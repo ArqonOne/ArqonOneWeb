@@ -7,6 +7,8 @@ const PROJECTS = [
         short: "STable",
         description:
           "Custom JTable wrapper with column filters, filter types, row numbering, and performance improvements for big datasets.",
+        category: "Java UI",
+        importance: 1,
         images: [
           // Add your screenshots here, e.g. "./assets/stable/1.png"
         ],
@@ -18,6 +20,8 @@ const PROJECTS = [
         short: "Map",
         description:
           "Map UI with search (Nominatim), draggable interactions, markers, and planned routing visualization.",
+        category: "Java Tooling",
+        importance: 3,
         images: [],
         link: "https://github.com/ArqonOne",
       },
@@ -27,8 +31,10 @@ const PROJECTS = [
         short: "Email client",
         description:
           "Simple web app to share gift ideas and mark items as purchased so friends don’t duplicate gifts.",
+        category: "Web App",
+        importance: 3,
         images: [],
-        link: "#",
+        link: "https://github.com/ArqonOne",
       },
       {
         key: "math",
@@ -36,8 +42,10 @@ const PROJECTS = [
         short: "",
         description:
           "Interactive math practice engine with step-by-step solutions, structured question bank, and dynamic UI widgets.",
+        category: "Learning Platform",
+        importance: 4,
         images: [],
-        link: "#",
+        link: "https://github.com/ArqonOne",
       },
       {
         key: "shopify",
@@ -45,8 +53,10 @@ const PROJECTS = [
         short: "Selios",
         description:
           "Theme customization and internal tooling to speed up content and template workflows.",
+        category: "Web Tooling",
+        importance: 3,
         images: [],
-        link: "#",
+        link: "https://github.com/ArqonOne",
       },
       {
         key: "android",
@@ -54,8 +64,10 @@ const PROJECTS = [
         short: "Android",
         description:
           "Fragments + RecyclerView based screens with custom components and consistent UX patterns.",
+        category: "Android",
+        importance: 5,
         images: [],
-        link: "#",
+        link: "https://github.com/ArqonOne",
       },
       {
         key: "db",
@@ -63,20 +75,82 @@ const PROJECTS = [
         short: "SQL Tooling",
         description:
           "Java desktop tooling for orders/displays backed by SQL Server; CRUD, imports, and data conversion utilities.",
+        category: "Database Tooling",
+        importance: 5,
         images: [],
-        link: "#",
+        link: "https://github.com/ArqonOne",
+      },
+      {
+        key: "test-orbit-a",
+        name: "Test Project: Orbit Archive",
+        short: "Archive",
+        description:
+          "Temporary project entry used to test overflow movement, planet selection, and popup positioning.",
+        category: "Test Node",
+        importance: 2,
+        images: [],
+        link: "https://github.com/ArqonOne",
+      },
+      {
+        key: "test-orbit-b",
+        name: "Test Project: Lunar Notes",
+        short: "Notes",
+        description:
+          "Temporary project entry used to make the planet row wider than the visible canvas.",
+        category: "Test Node",
+        importance: 1,
+        images: [],
+        link: "https://github.com/ArqonOne",
+      },
+      {
+        key: "test-orbit-c",
+        name: "Test Project: Signal Board",
+        short: "Signal",
+        description:
+          "Temporary project entry for checking auto-pan, hover pause, and click behavior.",
+        category: "Test Node",
+        importance: 3,
+        images: [],
+        link: "https://github.com/ArqonOne",
+      },
+      {
+        key: "test-orbit-d",
+        name: "Test Project: Docking UI",
+        short: "Docking",
+        description:
+          "Temporary project entry for verifying the far-right planets become reachable.",
+        category: "Test Node",
+        importance: 2,
+        images: [],
+        link: "https://github.com/ArqonOne",
       },
     ];
 
-const planetsDef = [
-      { name: PROJECTS[0].short, x: 0, y: 0.52, r: 26, ring: false, look: { type: "marble", outline: 2.4, jitter: 1.2, passes: 2, hatchAlpha: 0.55 } },
-      { name: PROJECTS[1].short, x: 0.18, y: 0.52, r: 56, ring: false, look: { type: "crater", outline: 3.2, jitter: 1.4, passes: 2, craterCount: 7 } },
-      { name: PROJECTS[2].short, x: 0.30, y: 0.52, r: 34, ring: false, look: { type: "split", outline: 2.6, jitter: 1.2, passes: 2, shadowSide: +1 } },
-      { name: PROJECTS[3].short, x: 0.42, y: 0.52, r: 40, ring: false, look: { type: "belt", outline: 2.8, jitter: 1.8, passes: 2, beltCount: 4 } },
-      { name: PROJECTS[4].short, x: 0.60, y: 0.52, r: 84, ring: false, look: { type: "halo", outline: 3.6, jitter: 1.1, passes: 2, halo: 0.9 } },
-      { name: PROJECTS[5].short, x: 0.78, y: 0.52, r: 52, ring: true, look: { type: "ringed", outline: 2.8, jitter: 1.2, passes: 2, ringWidth: 2.8, ringDouble: true } },
-      { name: PROJECTS[6].short, x: 0.92, y: 0.52, r: 46, ring: false, look: { type: "dots", outline: 2.2, jitter: 1.5, passes: 2, dotDensity: 0.016 } },
-    ];
+const CATEGORY_PLANETS = {
+  "Java UI": { ring: false, look: { type: "marble", outline: 2.4, jitter: 1.2, passes: 2, hatchAlpha: 0.55 } },
+  "Java Tooling": { ring: false, look: { type: "crater", outline: 3.2, jitter: 1.4, passes: 2, craterCount: 7 } },
+  "Web App": { ring: false, look: { type: "split", outline: 2.6, jitter: 1.2, passes: 2, shadowSide: +1 } },
+  "Learning Platform": { ring: false, look: { type: "belt", outline: 2.8, jitter: 1.8, passes: 2, beltCount: 4 } },
+  "Web Tooling": { ring: false, look: { type: "halo", outline: 3.6, jitter: 1.1, passes: 2, halo: 0.9 } },
+  "Android": { ring: true, look: { type: "ringed", outline: 2.8, jitter: 1.2, passes: 2, ringWidth: 2.8, ringDouble: true } },
+  "Database Tooling": { ring: false, look: { type: "dots", outline: 2.2, jitter: 1.5, passes: 2, dotDensity: 0.016 } },
+  "Test Node": { ring: false, look: { type: "dots", outline: 2.2, jitter: 1.5, passes: 2, dotDensity: 0.016 } },
+};
+
+function projectPlanet(project, index) {
+  const preset = CATEGORY_PLANETS[project.category] ?? CATEGORY_PLANETS["Test Node"];
+  const importance = Math.max(1, Math.min(5, project.importance ?? 3));
+
+  return {
+    name: project.short || project.name || `Project ${index + 1}`,
+    category: project.category,
+    r: 24 + importance * 10,
+    ring: preset.ring,
+    look: { ...preset.look },
+  };
+}
+
+const planetsDef = PROJECTS.map(projectPlanet);
 
 // ===== Popup + carousel wiring =====
 const modal = document.getElementById("projectModal");
@@ -94,6 +168,7 @@ panel.tabIndex = -1;
 let activeProject = null;
 let activeIndex = 0;
 let closeTimer = null;
+let planetsApi = null;
 
 function positionPanel(anchorX, anchorY) {
   const margin = 12;
@@ -135,6 +210,7 @@ function openModal(project, anchorX, anchorY) {
   modal.classList.add("pmodal--visible");
   modal.setAttribute("aria-hidden", "false");
   positionPanel(anchorX, anchorY);
+  planetsApi?.setMotionPaused(true);
 
   requestAnimationFrame(() => {
     modal.classList.add("pmodal--open");
@@ -148,6 +224,7 @@ function closeModal() {
   closeTimer = window.setTimeout(() => {
     modal.classList.remove("pmodal--visible");
   }, 220);
+  planetsApi?.setMotionPaused(false);
 }
 
 function renderImage() {
@@ -185,6 +262,16 @@ function renderImage() {
   });
 }
 
+function placeholderProject(planet) {
+  return {
+    name: planet.name,
+    description:
+      "Temporary placeholder planet. Add a matching entry in PROJECTS to show a real project description here.",
+    images: [],
+    link: "#",
+  };
+}
+
 modal.addEventListener("click", (e) => {
   if (e.target.closest("[data-close]")) closeModal();
 });
@@ -208,7 +295,7 @@ nextBtn.addEventListener("click", () => {
 });
 
 // ===== Planets init =====
-initPlanets({
+planetsApi = initPlanets({
   canvasId: "planetsCanvas",
   tipId: "planetsTip",
   containerId: "planetsBlock",
@@ -219,8 +306,7 @@ initPlanets({
     const anchorY = payload?.anchorY ?? 0;
 
     if (!planet) return;
-    const project = PROJECTS[planet.id - 1]; // planet.id is 1-based
-    if (!project) return;
+    const project = PROJECTS[planet.id - 1] ?? placeholderProject(planet); // planet.id is 1-based
 
     openModal(project, anchorX, anchorY);
   },
