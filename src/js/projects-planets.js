@@ -151,8 +151,10 @@ function projectPlanet(project, index) {
 }
 
 const planetsDef = PROJECTS.map(projectPlanet);
+const PROJECT_CATEGORIES = ["All", ...new Set(PROJECTS.map((project) => project.category))];
 
 // ===== Popup + carousel wiring =====
+const radarEl = document.getElementById("projectRadar");
 const modal = document.getElementById("projectModal");
 const panel = modal.querySelector(".pmodal__panel");
 const titleEl = document.getElementById("pTitle");
@@ -169,6 +171,52 @@ let activeProject = null;
 let activeIndex = 0;
 let closeTimer = null;
 let planetsApi = null;
+
+function renderProjectRadar() {
+  if (!radarEl) return;
+
+  const counts = PROJECTS.reduce((acc, project) => {
+    acc[project.category] = (acc[project.category] ?? 0) + 1;
+    return acc;
+  }, { All: PROJECTS.length });
+
+  radarEl.innerHTML = `
+    <div class="project-radar__scope" aria-hidden="true">
+      <span class="project-radar__sweep"></span>
+      <span class="project-radar__ping project-radar__ping--a"></span>
+      <span class="project-radar__ping project-radar__ping--b"></span>
+      <span class="project-radar__ping project-radar__ping--c"></span>
+    </div>
+    <div class="project-radar__filters" role="list"></div>
+  `;
+
+  const filtersEl = radarEl.querySelector(".project-radar__filters");
+
+  PROJECT_CATEGORIES.forEach((category, index) => {
+    const button = document.createElement("button");
+    button.className = `project-radar__filter${index === 0 ? " is-active" : ""}`;
+    button.type = "button";
+    button.dataset.category = category;
+    button.setAttribute("aria-pressed", index === 0 ? "true" : "false");
+    button.innerHTML = `
+      <span>${category}</span>
+      <small>${counts[category] ?? 0}</small>
+    `;
+
+    button.addEventListener("click", () => {
+      filtersEl.querySelectorAll(".project-radar__filter").forEach((filterButton) => {
+        const active = filterButton === button;
+        filterButton.classList.toggle("is-active", active);
+        filterButton.setAttribute("aria-pressed", active ? "true" : "false");
+      });
+
+      closeModal();
+      planetsApi?.setFilterCategory(category);
+    });
+
+    filtersEl.appendChild(button);
+  });
+}
 
 function positionPanel(anchorX, anchorY) {
   const margin = 12;
@@ -295,6 +343,8 @@ nextBtn.addEventListener("click", () => {
 });
 
 // ===== Planets init =====
+renderProjectRadar();
+
 planetsApi = initPlanets({
   canvasId: "planetsCanvas",
   tipId: "planetsTip",

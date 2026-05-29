@@ -37,6 +37,7 @@ export function initPlanets({
     let autoPanDir = 1;
     let autoPanPauseUntil = performance.now() + 1400;
     let motionPaused = false;
+    let activeCategory = "All";
 
     const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
     const EDGE_SAFE_ZONE = 78;
@@ -291,6 +292,11 @@ export function initPlanets({
         ringRot: rand(-0.25, 0.25),
     }));
 
+    function visiblePlanets() {
+        if (activeCategory === "All") return planets;
+        return planets.filter((p) => p.category === activeCategory);
+    }
+
     // ===== Layout (non-colliding) + camera panning =====
     function ensureNav() {
         if (navEl) return;
@@ -363,24 +369,25 @@ export function initPlanets({
     }
 
     function layoutPlanets() {
+        const layoutSet = visiblePlanets();
         // If the user provided preferred x/y, use them as seeds; otherwise place in a row.
         const basePad = 26;
         const gap = clamp(w * 0.1, 56, 90); // min distance between circles (in px)
         const usePreferredLayout =
-            planets.length <= 7 &&
-            planets.every((p) => typeof p.nx === "number" && p.nx >= 0 && p.nx <= 1 && typeof p.ny === "number");
-        const maxPlanetRadius = planets.reduce((max, p) => Math.max(max, p.r), 0);
+            layoutSet.length <= 7 &&
+            layoutSet.every((p) => typeof p.nx === "number" && p.nx >= 0 && p.nx <= 1 && typeof p.ny === "number");
+        const maxPlanetRadius = layoutSet.reduce((max, p) => Math.max(max, p.r), 0);
         const xPad = usePreferredLayout ? basePad : EDGE_SAFE_ZONE + maxPlanetRadius;
         const yPad = basePad;
 
-        const sumDiameters = planets.reduce((acc, p) => acc + p.r * 2, 0);
-        const minWorld = sumDiameters + gap * (planets.length - 1) + xPad * 2;
+        const sumDiameters = layoutSet.reduce((acc, p) => acc + p.r * 2, 0);
+        const minWorld = sumDiameters + gap * Math.max(0, layoutSet.length - 1) + xPad * 2;
         worldW = Math.max(w, Math.ceil(minWorld));
 
         // Initial positions
-        let xCursor = xPad;
-        for (let i = 0; i < planets.length; i++) {
-            const p = planets[i];
+        let xCursor = xPad + Math.max(0, (worldW - minWorld) / 2);
+        for (let i = 0; i < layoutSet.length; i++) {
+            const p = layoutSet[i];
 
             if (usePreferredLayout) {
                 p.wx = clamp(p.nx * worldW, xPad + p.r, worldW - xPad - p.r);
@@ -396,10 +403,10 @@ export function initPlanets({
         const iters = 220;
         for (let k = 0; k < iters; k++) {
             let moved = 0;
-            for (let i = 0; i < planets.length; i++) {
-                for (let j = i + 1; j < planets.length; j++) {
-                    const a = planets[i];
-                    const b = planets[j];
+            for (let i = 0; i < layoutSet.length; i++) {
+                for (let j = i + 1; j < layoutSet.length; j++) {
+                    const a = layoutSet[i];
+                    const b = layoutSet[j];
                     const dx = b.wx - a.wx;
                     const dy = b.wy - a.wy;
                     const dist = Math.hypot(dx, dy) || 0.0001;
@@ -419,7 +426,7 @@ export function initPlanets({
 
             // bounds + mild centering force
             const centerY = h * 0.52;
-            for (const p of planets) {
+            for (const p of layoutSet) {
                 p.wx = clamp(p.wx, xPad + p.r, worldW - xPad - p.r);
                 p.wy = clamp(p.wy + (centerY - p.wy) * 0.015, yPad + p.r, h - yPad - p.r);
             }
@@ -440,8 +447,9 @@ export function initPlanets({
     }
 
     function pickPlanet(mx, my, t) {
-        for (let i = planets.length - 1; i >= 0; i--) {
-            const p = planets[i];
+        const pickSet = visiblePlanets();
+        for (let i = pickSet.length - 1; i >= 0; i--) {
+            const p = pickSet[i];
             const pos = planetPos(p, t);
             const view = planetViewState(pos.x, p.r);
             if (view.alpha < 0.18) continue;
@@ -655,7 +663,7 @@ export function initPlanets({
                 : `${hovered.name} - click`;
         }
 
-        for (const p of planets) {
+        for (const p of visiblePlanets()) {
             const isHover = hovered === p;
             p.hover += ((isHover ? 1 : 0) - p.hover) * 0.14;
 
@@ -673,5 +681,14 @@ export function initPlanets({
     requestAnimationFrame(frame);
 
     // return a small API (optional)
-    return { planets, setMotionPaused };
+    function setFilterCategory(category) {
+        activeCategory = category || "All";
+        mouse.active = false;
+        tip.classList.remove("show");
+        needsRelayout = true;
+        setCameraTarget(0, true);
+        pauseAutoPan(900);
+    }
+
+    return { planets, setMotionPaused, setFilterCategory };
 }

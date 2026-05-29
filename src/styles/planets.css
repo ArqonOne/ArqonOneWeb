@@ -1,5 +1,131 @@
 /* planets.css */
 
+/* ===== Project navigation radar ===== */
+.project-radar {
+  display: grid;
+  grid-template-columns: 118px minmax(0, 1fr);
+  gap: 14px;
+  align-items: stretch;
+  margin-bottom: 12px;
+}
+
+.project-radar__scope,
+.project-radar__filters {
+  border: 1px solid rgba(255,255,255,0.12);
+  border-radius: 8px;
+  background:
+    radial-gradient(circle at 50% 50%, transparent 0 24%, rgba(255,255,255,0.08) 24.5% 25%, transparent 25.5% 48%, rgba(255,255,255,0.08) 48.5% 49%, transparent 49.5%),
+    linear-gradient(180deg, rgba(0,0,0,0.42), rgba(255,255,255,0.025));
+}
+
+.project-radar__scope {
+  position: relative;
+  width: 118px;
+  aspect-ratio: 1;
+  min-height: 104px;
+  overflow: hidden;
+}
+
+.project-radar__scope::before,
+.project-radar__scope::after {
+  content: "";
+  position: absolute;
+  inset: 14px;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.project-radar__scope::before {
+  border: 1px solid rgba(255,255,255,0.20);
+}
+
+.project-radar__scope::after {
+  background:
+    linear-gradient(90deg, transparent calc(50% - 0.5px), rgba(255,255,255,0.18) 50%, transparent calc(50% + 0.5px)),
+    linear-gradient(0deg, transparent calc(50% - 0.5px), rgba(255,255,255,0.18) 50%, transparent calc(50% + 0.5px));
+}
+
+.project-radar__sweep {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 42%;
+  height: 1px;
+  transform-origin: 0 50%;
+  background: linear-gradient(90deg, rgba(255,255,255,0.76), transparent);
+  filter: drop-shadow(0 0 8px rgba(255,255,255,0.28));
+  animation: radar-sweep 5.5s linear infinite;
+}
+
+.project-radar__ping {
+  position: absolute;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.80);
+  box-shadow: 0 0 12px rgba(255,255,255,0.35);
+}
+
+.project-radar__ping--a { left: 34%; top: 36%; }
+.project-radar__ping--b { left: 62%; top: 58%; }
+.project-radar__ping--c { left: 48%; top: 72%; }
+
+@keyframes radar-sweep {
+  to { transform: rotate(360deg); }
+}
+
+.project-radar__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-content: center;
+  padding: 12px;
+  background:
+    repeating-linear-gradient(180deg, rgba(255,255,255,0.026) 0 1px, transparent 1px 11px),
+    linear-gradient(180deg, rgba(0,0,0,0.42), rgba(255,255,255,0.025));
+}
+
+.project-radar__filter {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 34px;
+  border: 1px solid rgba(255,255,255,0.14);
+  border-radius: 8px;
+  padding: 7px 10px;
+  background: rgba(0,0,0,0.28);
+  color: rgba(255,255,255,0.74);
+  cursor: pointer;
+}
+
+.project-radar__filter span {
+  font-size: 12px;
+  line-height: 1;
+}
+
+.project-radar__filter small {
+  min-width: 20px;
+  border-radius: 999px;
+  padding: 2px 6px;
+  background: rgba(255,255,255,0.08);
+  color: rgba(255,255,255,0.58);
+  font-size: 11px;
+  line-height: 1.2;
+  text-align: center;
+}
+
+.project-radar__filter:hover,
+.project-radar__filter.is-active {
+  border-color: rgba(255,255,255,0.38);
+  background: rgba(255,255,255,0.10);
+  color: rgba(255,255,255,0.96);
+}
+
+.project-radar__filter.is-active small {
+  background: rgba(255,255,255,0.88);
+  color: #000;
+}
+
 /* The block that defines the section size */
 .planets-block {
   position: relative;
@@ -310,6 +436,16 @@
 
 
 @media (max-width: 560px) {
+  .project-radar {
+    grid-template-columns: 1fr;
+  }
+
+  .project-radar__scope {
+    justify-self: center;
+    width: 112px;
+    min-height: 96px;
+  }
+
   .planets-block { height: 300px; }
   .pmodal__panel { width: 360px; }
   .pmodal__imgwrap { height: 190px; }
